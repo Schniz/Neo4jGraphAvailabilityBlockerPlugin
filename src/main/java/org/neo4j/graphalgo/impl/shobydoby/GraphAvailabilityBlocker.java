@@ -29,6 +29,7 @@ import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.PathExpander;
 import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.traversal.InitialBranchState;
+import org.neo4j.server.plugins.ServerPlugin;
 
 /**
  * Created by Gal Schlezinger on 6/12/14.
@@ -43,6 +44,7 @@ public class GraphAvailabilityBlocker {
         this.trainLength = trainLength;
         pathExpander = new StatefulEdgeAvailabilityPathExpander(trainLength);
     }
+
 
     /**
      * Searches and blocks the road in the correct hours
