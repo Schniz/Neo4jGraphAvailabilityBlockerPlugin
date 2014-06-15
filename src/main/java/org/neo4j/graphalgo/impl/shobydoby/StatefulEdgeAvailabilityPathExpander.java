@@ -57,7 +57,7 @@ public class StatefulEdgeAvailabilityPathExpander implements PathExpander<Double
         List<Relationship> relationships = new LinkedList<Relationship>();
 
         for (Relationship objRelation : path.endNode().getRelationships()) {
-            double[] availabilities = (double[])(objRelation.getProperty("availability"));
+            double[] availabilities = getAvailabilities(objRelation);
 
             int startIndex = 0;
             int endIndex = availabilities.length - 1;
@@ -77,6 +77,28 @@ public class StatefulEdgeAvailabilityPathExpander implements PathExpander<Double
         }
 
         return relationships;
+    }
+
+    private double[] getAvailabilities(Relationship objRelation) {
+        Object availabilities = objRelation.getProperty("availability");
+        double[] result;
+
+        if (availabilities instanceof int[])
+        {
+            int[] arrToManipulate = (int[]) availabilities;
+            double[] arr = new double[arrToManipulate.length];
+            for (int i = 0; i < arrToManipulate.length; i++)
+            {
+                arr[i] = (double) arrToManipulate[i];
+            }
+            result = arr;
+        }
+        else
+        {
+            result = (double[]) availabilities;
+        }
+
+        return result;
     }
 
     private boolean isNextElementNotInterferingThisOne(double currCost, double i) {

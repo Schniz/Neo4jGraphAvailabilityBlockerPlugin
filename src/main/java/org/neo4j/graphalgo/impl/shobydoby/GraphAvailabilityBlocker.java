@@ -84,7 +84,7 @@ public class GraphAvailabilityBlocker {
         double cost = startRoadHour;
 
         for (Relationship rel : pathToBlock.relationships()) {
-            int length = (int) rel.getProperty("length");
+            double length = (double) rel.getProperty("length");
             double[] availabilities = (double[]) rel.getProperty("availability");
             EdgeAvailability edgeAvailability = EdgeAvailability.fromDoubleArray(availabilities);
 

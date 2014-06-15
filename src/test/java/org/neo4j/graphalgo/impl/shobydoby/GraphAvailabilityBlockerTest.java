@@ -33,10 +33,10 @@ public class GraphAvailabilityBlockerTest extends Neo4jAlgoTestCase {
         Node nodeC = graph.makeNode( "C" );
         Node nodeD = graph.makeNode( "D" );
 
-        graph.makeEdge("A", "B", "length", 1, "availability", new double[] { 0, 1 });
-        graph.makeEdge("D", "B", "length", 1, "availability", new double[] { 0, 1, 5, 7 });
-        graph.makeEdge("A", "C", "length", 1, "availability", new double[] { 0, 1 });
-        graph.makeEdge("C", "D", "length", 2, "availability", new double[] { 0, 1 });
+        graph.makeEdge("A", "B", "length", 1d, "availability", new double[] { 0, 1 });
+        graph.makeEdge("D", "B", "length", 1d, "availability", new double[] { 0, 1, 5, 7 });
+        graph.makeEdge("A", "C", "length", 1d, "availability", new double[] { 0, 1 });
+        graph.makeEdge("C", "D", "length", 2d, "availability", new double[] { 0, 1 });
 
         GraphAvailabilityBlocker graphBlocker = new GraphAvailabilityBlocker(2);
 

@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+
+mvn clean install $*
+zip -ur target/Neo4jGraphAvailabilityBlocker-1.0-SNAPSHOT.jar META-INF/

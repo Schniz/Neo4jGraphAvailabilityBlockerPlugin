@@ -2,6 +2,7 @@ package org.neo4j.graphalgo.impl.shobydoby;
 
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Path;
+import org.neo4j.graphdb.Transaction;
 import org.neo4j.server.plugins.*;
 
 /**
@@ -14,10 +15,18 @@ public class GraphAvailabilityPlugin extends ServerPlugin {
     public Path getAvailablePath(
             @Source Node source,
             @Parameter(name="target") @Description("Target") Node target,
-            @Parameter(name="trainLength") @Description("The Length of the train") int trainLength,
-            @Parameter(name="hour") @Description("The time to start the path") double hour)
+            @Parameter(name="trainLength") @Description("The Length of the train") Integer trainLength,
+            @Parameter(name="hour") @Description("The time to start the path") Double hour)
     {
-        return new GraphAvailabilityBlocker(trainLength).tryBlock(hour, source, target);
+        Path path = null;
+
+        try (Transaction tx = source.getGraphDatabase().beginTx())
+        {
+            path = new GraphAvailabilityBlocker(trainLength).tryBlock(hour, source, target);
+            tx.success();
+        }
+
+        return path;
     }
 
     @Name( "block_path" )
@@ -26,9 +35,17 @@ public class GraphAvailabilityPlugin extends ServerPlugin {
     public Path blockPath(
             @Source Node source,
             @Parameter(name="target") @Description("Target") Node target,
-            @Parameter(name="trainLength") @Description("The Length of the train") int trainLength,
-            @Parameter(name="hour") @Description("The time to start the path") double hour)
+            @Parameter(name="trainLength") @Description("The Length of the train") Integer trainLength,
+            @Parameter(name="hour") @Description("The time to start the path") Double hour)
     {
-        return new GraphAvailabilityBlocker(trainLength).block(hour, source, target);
+        Path path = null;
+
+        try (Transaction tx = source.getGraphDatabase().beginTx())
+        {
+            path = new GraphAvailabilityBlocker(trainLength).block(hour, source, target);
+            tx.success();
+        }
+
+        return path;
     }
 }
