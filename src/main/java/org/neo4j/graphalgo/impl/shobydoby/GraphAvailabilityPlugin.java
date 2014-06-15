@@ -1,17 +1,11 @@
 package org.neo4j.graphalgo.impl.shobydoby;
 
-import org.neo4j.graphalgo.WeightedPath;
-import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Path;
-import org.neo4j.graphdb.Transaction;
 import org.neo4j.server.plugins.*;
-import org.neo4j.tooling.GlobalGraphOperations;
-
-import java.util.ArrayList;
 
 /**
- * Created by schniz on 6/15/14.
+ * Created by Gal Schlezinger on 6/15/14.
  */
 public class GraphAvailabilityPlugin extends ServerPlugin {
     @Name( "get_available_path" )
