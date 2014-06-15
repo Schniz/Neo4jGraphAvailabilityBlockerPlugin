@@ -84,8 +84,8 @@ public class GraphAvailabilityBlocker {
         double cost = startRoadHour;
 
         for (Relationship rel : pathToBlock.relationships()) {
-            double length = (double) rel.getProperty("length");
-            double[] availabilities = (double[]) rel.getProperty("availability");
+            double length = getLength(rel);
+            double[] availabilities = getAvailabilities(rel);
             EdgeAvailability edgeAvailability = EdgeAvailability.fromDoubleArray(availabilities);
 
             TimeSpan timeSpan = new TimeSpan().setFrom(cost).setTo(cost + length);
@@ -94,6 +94,32 @@ public class GraphAvailabilityBlocker {
 
             cost += length;
         }
+    }
+
+    private double[] getAvailabilities(Relationship objRelation) {
+        Object availabilities = objRelation.getProperty("availability");
+        double[] result;
+
+        if (availabilities instanceof int[])
+        {
+            int[] arrToManipulate = (int[]) availabilities;
+            double[] arr = new double[arrToManipulate.length];
+            for (int i = 0; i < arrToManipulate.length; i++)
+            {
+                arr[i] = (double) arrToManipulate[i];
+            }
+            result = arr;
+        }
+        else
+        {
+            result = (double[]) availabilities;
+        }
+
+        return result;
+    }
+
+    private double getLength(Relationship rel) {
+        return Double.parseDouble(rel.getProperty("length").toString());
     }
 
     /**
