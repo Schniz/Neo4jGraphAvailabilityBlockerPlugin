@@ -3,6 +3,7 @@ package org.neo4j.graphalgo.impl.shobydoby;
 import junit.framework.TestCase;
 import org.apache.commons.lang.time.StopWatch;
 import org.junit.Before;
+import org.neo4j.graphalgo.WeightedPath;
 import org.neo4j.graphdb.*;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 import org.neo4j.kernel.impl.core.TestNeo4j;
@@ -16,8 +17,9 @@ import java.util.List;
  */
 public class EmbeddedTest extends TestCase {
     GraphDatabaseService db;
-    private int startNodeId = 2002;
-    private int endNodeId = 9350;
+    private int startNodeId = 274766;
+//    private int endNodeId = 9350;
+    private int endNodeId = 2002;
 
     @Before
     public void setUp() throws Exception {
@@ -26,7 +28,7 @@ public class EmbeddedTest extends TestCase {
 
     }
 
-    void printPath(Node startNode, Node endNode, Path path)
+    void printPath(Node startNode, Node endNode, WeightedPath path)
     {
         if (path == null)
         {
@@ -36,7 +38,7 @@ public class EmbeddedTest extends TestCase {
 
         System.out.println("PATH:");
         System.out.println(path);
-
+        System.out.println("WEIGHT: " + path.weight());
         System.out.println();
 
         List<Node> nodesList = new ArrayList<>();
@@ -59,6 +61,12 @@ public class EmbeddedTest extends TestCase {
             }
         }
 
+        System.out.println("id");
+        for (Node node : nodesList){
+            System.out.println(node.getId());
+        }
+
+        System.out.println("--");
         System.out.println("lat");
         for (Node node : nodesList){
             System.out.println(node.getProperty("lat"));
@@ -84,15 +92,15 @@ public class EmbeddedTest extends TestCase {
         {
             Node nodeA;
             Node nodeB;
+
             nodeA = db.getNodeById(startNodeId);
             nodeB = db.getNodeById(endNodeId);
-
 
             for(int i = 0; i < 5; i++)
             {
                 StopWatch stopWatch = new StopWatch();
                 stopWatch.start();
-                Path availablePath = new GraphAvailabilityBlocker(2).tryBlock(0.0, nodeA, nodeB);
+                WeightedPath availablePath = new GraphAvailabilityBlocker(2).tryBlock(0.0, nodeA, nodeB);
                 stopWatch.stop();
 
                 System.out.println(i + ": " + stopWatch.getTime() + "ms");
