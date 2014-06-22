@@ -23,6 +23,7 @@ package org.neo4j.graphalgo.impl.shobydoby;
 import org.neo4j.graphdb.Path;
 import org.neo4j.graphdb.PathExpander;
 import org.neo4j.graphdb.Relationship;
+import org.neo4j.graphdb.RelationshipType;
 import org.neo4j.graphdb.traversal.BranchState;
 
 import java.util.LinkedList;
@@ -32,6 +33,11 @@ import java.util.List;
  * Created by schniz on 6/11/14.
  */
 public class StatefulEdgeAvailabilityPathExpander implements PathExpander<Double> {
+
+    public static enum Relations implements RelationshipType {
+        NODE, NEXT
+    }
+
     int length;
 
     public StatefulEdgeAvailabilityPathExpander(int length) {
@@ -56,7 +62,7 @@ public class StatefulEdgeAvailabilityPathExpander implements PathExpander<Double
 
         List<Relationship> relationships = new LinkedList<Relationship>();
 
-        for (Relationship objRelation : path.endNode().getRelationships()) {
+        for (Relationship objRelation : path.endNode().getRelationships(Relations.NODE, Relations.NEXT)) {
             double[] availabilities = getAvailabilities(objRelation);
 
             int startIndex = 0;
