@@ -49,7 +49,7 @@ public class StatefulEdgeAvailabilityPathExpander implements PathExpander<Double
         }
         else
         {
-            currCost = (state.getState()) + ((Number)(path.lastRelationship().getProperty( "length" ))).doubleValue();
+            currCost = (state.getState()) + ((Number)(path.lastRelationship().getProperty( "distance" ))).doubleValue();
 
             state.setState( currCost );
         }
@@ -80,6 +80,11 @@ public class StatefulEdgeAvailabilityPathExpander implements PathExpander<Double
     }
 
     private double[] getAvailabilities(Relationship objRelation) {
+
+        if (!objRelation.hasProperty("availability")){
+            objRelation.setProperty("availability", new double[0]);
+        }
+
         Object availabilities = objRelation.getProperty("availability");
         double[] result;
 
