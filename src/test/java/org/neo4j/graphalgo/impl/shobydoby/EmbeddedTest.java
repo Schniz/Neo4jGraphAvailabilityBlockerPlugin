@@ -18,7 +18,7 @@ public class EmbeddedTest extends TestCase {
     @Before
     public void setUp() throws Exception {
         super.setUp();
-        db = new GraphDatabaseFactory().newEmbeddedDatabase("C:\\neo4j-db");
+        db = new GraphDatabaseFactory().newEmbeddedDatabase("/tmp/neo4j-db");
     }
 
     public void testPerformance() throws Exception {
@@ -40,6 +40,6 @@ public class EmbeddedTest extends TestCase {
 
         stopWatch.stop();
 
-        assertTrue(stopWatch.getTime() < 1000);
+        assertTrue("time suppose to be below 1000ms. got " + stopWatch.getTime() + "ms", stopWatch.getTime() < 1000);
     }
 }
