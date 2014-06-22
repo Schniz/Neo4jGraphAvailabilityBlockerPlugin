@@ -26,6 +26,7 @@ import org.neo4j.graphalgo.WeightedPath;
 import org.neo4j.graphalgo.impl.path.Dijkstra;
 import org.neo4j.graphalgo.impl.shobydoby.EdgeAvailability;
 import org.neo4j.graphdb.Node;
+import org.neo4j.graphdb.Path;
 import org.neo4j.graphdb.PathExpander;
 import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.traversal.InitialBranchState;
@@ -54,14 +55,18 @@ public class GraphAvailabilityBlocker {
      * @return null if a path cannot be found; otherwise, returns the path
      */
     public WeightedPath tryBlock(double startRoadHour, Node from, Node to) {
-        PathFinder<WeightedPath> pathFinder = createPathFinder(startRoadHour);
-        WeightedPath singlePath = pathFinder.findSinglePath( from, to );
+        WeightedPath singlePath = getAvailablePath(startRoadHour, from, to);
 
         if (singlePath != null) {
             blockPath(startRoadHour, singlePath);
         }
 
         return singlePath;
+    }
+
+    public WeightedPath getAvailablePath(double startRoadHour, Node from, Node to) {
+        PathFinder<WeightedPath> pathFinder = createPathFinder(startRoadHour);
+        return pathFinder.findSinglePath( from, to );
     }
 
     /**
@@ -72,7 +77,7 @@ public class GraphAvailabilityBlocker {
     private PathFinder<WeightedPath> createPathFinder(double startRoadHour) {
         return new Dijkstra( pathExpander,
                 new InitialBranchState.State<>( startRoadHour, 0.0 ),
-                CommonEvaluators.doubleCostEvaluator("length") );
+                CommonEvaluators.doubleCostEvaluator("distance") );
     }
 
     /**
@@ -119,7 +124,7 @@ public class GraphAvailabilityBlocker {
     }
 
     private double getLength(Relationship rel) {
-        return Double.parseDouble(rel.getProperty("length").toString());
+        return Double.parseDouble(rel.getProperty("distance").toString());
     }
 
     /**

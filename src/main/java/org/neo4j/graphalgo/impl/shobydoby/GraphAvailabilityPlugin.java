@@ -22,7 +22,7 @@ public class GraphAvailabilityPlugin extends ServerPlugin {
 
         try (Transaction tx = source.getGraphDatabase().beginTx())
         {
-            path = new GraphAvailabilityBlocker(trainLength).tryBlock(hour, source, target);
+            path = new GraphAvailabilityBlocker(trainLength).getAvailablePath(hour, source, target);
             tx.success();
         }
 
@@ -42,7 +42,7 @@ public class GraphAvailabilityPlugin extends ServerPlugin {
 
         try (Transaction tx = source.getGraphDatabase().beginTx())
         {
-            path = new GraphAvailabilityBlocker(trainLength).block(hour, source, target);
+            path = new GraphAvailabilityBlocker(trainLength).tryBlock(hour, source, target);
             tx.success();
         }
 
