@@ -20,12 +20,15 @@
 
 package org.neo4j.graphalgo.impl.shobydoby;
 
+import org.neo4j.cypher.ExecutionResult;
+import org.neo4j.graphalgo.WeightedPath;
 import org.neo4j.graphdb.Path;
 import org.neo4j.graphdb.PathExpander;
 import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.RelationshipType;
 import org.neo4j.graphdb.traversal.BranchState;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -47,38 +50,36 @@ public class StatefulEdgeAvailabilityPathExpander implements PathExpander<Double
     @Override
     public Iterable<Relationship> expand(Path path, BranchState<Double> state) {
 
-        double currCost = 0;
+        double currCost = state.getState();
 
-        if ( path.length() == 0 )
+        if ( path.length() != 0 )
         {
-            currCost = state.getState();
-        }
-        else
-        {
-            currCost = (state.getState()) + ((Number)(path.lastRelationship().getProperty( "distance" ))).doubleValue();
-
+            currCost += ((Number) path.lastRelationship().getProperty( "distance" )).doubleValue();
             state.setState( currCost );
         }
 
-        List<Relationship> relationships = new LinkedList<Relationship>();
+        List<Relationship> relationships = new ArrayList<>();
+        Iterable<Relationship> relationshipIterable = path.endNode().getRelationships(Relations.NODE, Relations.NEXT);
 
-        for (Relationship objRelation : path.endNode().getRelationships(Relations.NODE, Relations.NEXT)) {
-            double[] availabilities = getAvailabilities(objRelation);
+        for (Relationship relationship : relationshipIterable) {
+            double[] availabilities = getAvailabilities(relationship);
+            EdgeAvailability e = EdgeAvailability.fromDoubleArray(availabilities);
 
-            int startIndex = 0;
-            int endIndex = availabilities.length - 1;
-            int greatestSmallerIndex = 0;
-
-            if (availabilities.length > 0) {
-                greatestSmallerIndex = binarySearch(startIndex, endIndex, availabilities, currCost);
-            }
-
-            if ((availabilities.length == 0) ||
-                (isLastElementInCouple(greatestSmallerIndex) &&
-                 (isLastElementInArray(availabilities, greatestSmallerIndex) ||
-                  isNextElementNotInterferingThisOne(currCost, availabilities[greatestSmallerIndex + 1]))))
+//            int startIndex = 0;
+//            int endIndex = availabilities.length - 1;
+//            int greatestSmallerIndex = 0;
+//
+//            if (availabilities.length > 0) {
+//                greatestSmallerIndex = binarySearch(startIndex, endIndex, availabilities, currCost);
+//            }
+//
+//            if ((availabilities.length == 0) ||
+//                (isLastElementInCouple(greatestSmallerIndex) &&
+//                 (isLastElementInArray(availabilities, greatestSmallerIndex) ||
+//                  isNextElementNotInterferingThisOne(currCost, availabilities[greatestSmallerIndex + 1]))))
+            if (e.isFree(new TimeSpan().setFrom(currCost).setTo(currCost + length)))
             {
-                relationships.add(objRelation);
+                relationships.add(relationship);
             }
         }
 
@@ -87,29 +88,30 @@ public class StatefulEdgeAvailabilityPathExpander implements PathExpander<Double
 
     private double[] getAvailabilities(Relationship objRelation) {
 
-        if (!objRelation.hasProperty("availability")){
-            objRelation.setProperty("availability", new double[0]);
-        }
+        Object availabilities = objRelation.getProperty("availability", new double[0]);
+//
+//        if (objRelation.hasProperty("availability")){
+//            availabilities = objRelation.getProperty("availability");
+//        }
 
-        Object availabilities = objRelation.getProperty("availability");
-        double[] result;
+//        double[] result;
 
-        if (availabilities instanceof int[])
-        {
-            int[] arrToManipulate = (int[]) availabilities;
-            double[] arr = new double[arrToManipulate.length];
-            for (int i = 0; i < arrToManipulate.length; i++)
-            {
-                arr[i] = (double) arrToManipulate[i];
-            }
-            result = arr;
-        }
-        else
-        {
-            result = (double[]) availabilities;
-        }
+//        if (availabilities instanceof int[])
+//        {
+//            int[] arrToManipulate = (int[]) availabilities;
+//            double[] arr = new double[arrToManipulate.length];
+//            for (int i = 0; i < arrToManipulate.length; i++)
+//            {
+//                arr[i] = (double) arrToManipulate[i];
+//            }
+//            result = arr;
+//        }
+//        else
+//        {
+//            result = (double[]) availabilities;
+//        }
 
-        return result;
+        return (double[]) availabilities;
     }
 
     private boolean isNextElementNotInterferingThisOne(double currCost, double i) {

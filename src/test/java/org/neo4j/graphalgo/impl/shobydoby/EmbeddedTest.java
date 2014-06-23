@@ -3,12 +3,17 @@ package org.neo4j.graphalgo.impl.shobydoby;
 import junit.framework.TestCase;
 import org.apache.commons.lang.time.StopWatch;
 import org.junit.Before;
+import org.neo4j.graphalgo.CommonEvaluators;
+import org.neo4j.graphalgo.GraphAlgoFactory;
 import org.neo4j.graphalgo.WeightedPath;
+import org.neo4j.graphalgo.impl.path.Dijkstra;
 import org.neo4j.graphdb.*;
+import org.neo4j.graphdb.factory.GraphDatabaseBuilder;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
-import org.neo4j.kernel.impl.core.TestNeo4j;
+import org.neo4j.graphdb.factory.GraphDatabaseSettings;
+import org.neo4j.graphdb.traversal.InitialBranchState;
+import org.neo4j.tooling.GlobalGraphOperations;
 
-import javax.management.relation.Relation;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,8 +29,29 @@ public class EmbeddedTest extends TestCase {
     @Before
     public void setUp() throws Exception {
         super.setUp();
-        db = new GraphDatabaseFactory().newEmbeddedDatabase("/tmp/neo4j-db");
+        db = new GraphDatabaseFactory()
+                .newEmbeddedDatabaseBuilder("/tmp/neo4j-db")
+//                .setConfig( GraphDatabaseSettings.relationshipstore_mapped_memory_size, "300M" )
+//                .setConfig( GraphDatabaseSettings.nodestore_mapped_memory_size, "300M" )
+//                .setConfig( GraphDatabaseSettings.nodestore_propertystore_mapped_memory_size, "300M")
+//                .setConfig(GraphDatabaseSettings.cache_type, "strong")
+                .newGraphDatabase();
 
+        try (Transaction tx = db.beginTx()) {
+            Iterable<Node> allNodes = GlobalGraphOperations.at(db).getAllNodes();
+            for (Node node : allNodes) {
+                for (Relationship r : node.getRelationships()) {
+                    Iterable<String> propertyKeys = r.getPropertyKeys();
+                    for (String propertyKey : propertyKeys) {
+                        r.getProperty(propertyKey);
+                    }
+                }
+
+                for (String propertyKey : node.getPropertyKeys()) {
+                    node.getProperty(propertyKey);
+                }
+            }
+        }
     }
 
     void printPath(Node startNode, Node endNode, WeightedPath path)
@@ -85,36 +111,56 @@ public class EmbeddedTest extends TestCase {
 
     public void testPerformance() throws Exception
     {
-        long min = Long.MAX_VALUE;
-        long max = Long.MIN_VALUE;
+//        Thread.sleep(10000);
 
         try (Transaction tx = db.beginTx())
         {
+            new Dijkstra(new StatefulEdgeAvailabilityPathExpander(2), new InitialBranchState.State<>(0.0, 0.0), CommonEvaluators.doubleCostEvaluator("distance")).findSinglePath(db.getNodeById(3681), db.getNodeById(13130));
+            System.out.println("YES");
+
             Node nodeA;
             Node nodeB;
 
-            nodeA = db.getNodeById(startNodeId);
-            nodeB = db.getNodeById(endNodeId);
-
-            for(int i = 0; i < 5; i++)
-            {
-                StopWatch stopWatch = new StopWatch();
-                stopWatch.start();
-                WeightedPath availablePath = new GraphAvailabilityBlocker(2).tryBlock(0.0, nodeA, nodeB);
-                stopWatch.stop();
-
-                System.out.println(i + ": " + stopWatch.getTime() + "ms");
-                max = Math.max(max, stopWatch.getTime());
-                min = Math.min(min, stopWatch.getTime());
-                printPath(nodeA, nodeB, availablePath);
+            for (double i = 0.0; i < 3.0; i += 1.0) {
+                System.out.println(i);
+//                findAndBlockAvailablePaths(7491, 89888, i);
+                findAndBlockAvailablePaths(3681, 455030, i);
+                findAndBlockAvailablePaths(3681, 13130, i);
+//                findAndBlockAvailablePaths(startNodeId, endNodeId, i);
             }
-
-
-            System.out.println("Minimum: " + min + "ms, max: " + max + "ms");
-
-            assertTrue("minimum time suppose to be below 1000ms. got " + min + "ms", min < 1000);
-
             tx.failure();
         }
+
+//        System.out.println("click");
+//        Thread.sleep(10000);
+    }
+
+    private void findAndBlockAvailablePaths(long start, long end, double startRoadHour) {
+        long min = Long.MAX_VALUE;
+        long max = Long.MIN_VALUE;
+
+        Node nodeA;
+        Node nodeB;
+        nodeA = db.getNodeById(start);
+        nodeB = db.getNodeById(end);
+
+        for(int i = 0; i < 5; i++)
+        {
+            StopWatch stopWatch = new StopWatch();
+            stopWatch.start();
+//            Dijkstra dijkstra = new Dijkstra(PathExpanders, InitialBranchState.NO_STATE, CommonEvaluators.doubleCostEvaluator("distance"));
+//            dijkstra.findSinglePath(nodeA, nodeB);
+            WeightedPath availablePath = new GraphAvailabilityBlocker(2).tryBlock(startRoadHour, nodeA, nodeB);
+            stopWatch.stop();
+
+            min = Math.min(min, stopWatch.getTime());
+            max = Math.max(max, stopWatch.getTime());
+
+            System.out.println(i + ": " + stopWatch.getTime() + "ms. road exists? " + (null != availablePath));
+//            printPath(nodeA, nodeB, availablePath);
+        }
+
+        System.out.println("Minimum: " + min + "ms, max: " + max + "ms");
+
     }
 }

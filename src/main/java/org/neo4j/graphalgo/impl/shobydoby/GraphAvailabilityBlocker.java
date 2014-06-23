@@ -102,23 +102,23 @@ public class GraphAvailabilityBlocker {
     }
 
     private double[] getAvailabilities(Relationship objRelation) {
-        Object availabilities = objRelation.getProperty("availability");
+        Object availabilities = objRelation.getProperty("availability", new double[0]);
         double[] result;
 
-        if (availabilities instanceof int[])
-        {
-            int[] arrToManipulate = (int[]) availabilities;
-            double[] arr = new double[arrToManipulate.length];
-            for (int i = 0; i < arrToManipulate.length; i++)
-            {
-                arr[i] = (double) arrToManipulate[i];
-            }
-            result = arr;
-        }
-        else
-        {
+//        if (availabilities instanceof int[])
+//        {
+//            int[] arrToManipulate = (int[]) availabilities;
+//            double[] arr = new double[arrToManipulate.length];
+//            for (int i = 0; i < arrToManipulate.length; i++)
+//            {
+//                arr[i] = (double) arrToManipulate[i];
+//            }
+//            result = arr;
+//        }
+//        else
+//        {
             result = (double[]) availabilities;
-        }
+//        }
 
         return result;
     }
