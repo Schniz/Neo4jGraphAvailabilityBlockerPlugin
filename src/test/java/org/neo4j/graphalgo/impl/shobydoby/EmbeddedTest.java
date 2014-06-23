@@ -31,15 +31,16 @@ public class EmbeddedTest extends TestCase {
         super.setUp();
         db = new GraphDatabaseFactory()
                 .newEmbeddedDatabaseBuilder("/tmp/neo4j-db")
-//                .setConfig( GraphDatabaseSettings.relationshipstore_mapped_memory_size, "300M" )
-//                .setConfig( GraphDatabaseSettings.nodestore_mapped_memory_size, "300M" )
-//                .setConfig( GraphDatabaseSettings.nodestore_propertystore_mapped_memory_size, "300M")
-//                .setConfig(GraphDatabaseSettings.cache_type, "strong")
                 .newGraphDatabase();
 
         try (Transaction tx = db.beginTx()) {
+            int i = 0;
             Iterable<Node> allNodes = GlobalGraphOperations.at(db).getAllNodes();
             for (Node node : allNodes) {
+                if (node.hasProperty("node_osm_id")) {
+                    i++;
+                }
+
                 for (Relationship r : node.getRelationships()) {
                     Iterable<String> propertyKeys = r.getPropertyKeys();
                     for (String propertyKey : propertyKeys) {
@@ -51,6 +52,8 @@ public class EmbeddedTest extends TestCase {
                     node.getProperty(propertyKey);
                 }
             }
+
+            System.out.println("graph size: " + i);
         }
     }
 
@@ -111,56 +114,26 @@ public class EmbeddedTest extends TestCase {
 
     public void testPerformance() throws Exception
     {
-//        Thread.sleep(10000);
+        StopWatch stopWatch = new StopWatch();
 
         try (Transaction tx = db.beginTx())
         {
-            new Dijkstra(new StatefulEdgeAvailabilityPathExpander(2), new InitialBranchState.State<>(0.0, 0.0), CommonEvaluators.doubleCostEvaluator("distance")).findSinglePath(db.getNodeById(3681), db.getNodeById(13130));
-            System.out.println("YES");
-
-            Node nodeA;
-            Node nodeB;
-
-            for (double i = 0.0; i < 3.0; i += 1.0) {
-                System.out.println(i);
-//                findAndBlockAvailablePaths(7491, 89888, i);
-                findAndBlockAvailablePaths(3681, 455030, i);
-                findAndBlockAvailablePaths(3681, 13130, i);
-//                findAndBlockAvailablePaths(startNodeId, endNodeId, i);
-            }
-            tx.failure();
-        }
-
-//        System.out.println("click");
-//        Thread.sleep(10000);
-    }
-
-    private void findAndBlockAvailablePaths(long start, long end, double startRoadHour) {
-        long min = Long.MAX_VALUE;
-        long max = Long.MIN_VALUE;
-
-        Node nodeA;
-        Node nodeB;
-        nodeA = db.getNodeById(start);
-        nodeB = db.getNodeById(end);
-
-        for(int i = 0; i < 5; i++)
-        {
-            StopWatch stopWatch = new StopWatch();
+            Node nodeA = db.getNodeById(3681);
+            Node nodeB = db.getNodeById(13130);
             stopWatch.start();
-//            Dijkstra dijkstra = new Dijkstra(PathExpanders, InitialBranchState.NO_STATE, CommonEvaluators.doubleCostEvaluator("distance"));
-//            dijkstra.findSinglePath(nodeA, nodeB);
-            WeightedPath availablePath = new GraphAvailabilityBlocker(2).tryBlock(startRoadHour, nodeA, nodeB);
+            WeightedPath availablePath = new GraphAvailabilityBlocker(2).tryBlock(0.0, nodeA, nodeB);
             stopWatch.stop();
+            tx.failure();
 
-            min = Math.min(min, stopWatch.getTime());
-            max = Math.max(max, stopWatch.getTime());
+            int i = 0;
+            for (Relationship r : availablePath.relationships()) {
+                i++;
+            }
 
-            System.out.println(i + ": " + stopWatch.getTime() + "ms. road exists? " + (null != availablePath));
-//            printPath(nodeA, nodeB, availablePath);
+            System.out.println(i + " relations");
         }
 
-        System.out.println("Minimum: " + min + "ms, max: " + max + "ms");
-
+        long timeTaken = stopWatch.getTime();
+        assertTrue("this test should be less than 1000ms!!!! it took " + timeTaken, timeTaken < 1000);
     }
 }

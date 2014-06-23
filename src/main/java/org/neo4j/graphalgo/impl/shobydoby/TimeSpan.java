@@ -24,8 +24,7 @@ package org.neo4j.graphalgo.impl.shobydoby;
  *
  * Represents a time span: (from, to)
  */
-public class TimeSpan implements Comparable<TimeSpan>
-{
+public class TimeSpan implements Comparable<TimeSpan> {
     private double from;
     private double to;
 
@@ -33,7 +32,7 @@ public class TimeSpan implements Comparable<TimeSpan>
         return from;
     }
 
-    public TimeSpan setFrom( double from ) {
+    public TimeSpan setFrom(double from) {
         this.from = from;
         return this;
     }
@@ -42,7 +41,7 @@ public class TimeSpan implements Comparable<TimeSpan>
         return to;
     }
 
-    public TimeSpan setTo( double to ) {
+    public TimeSpan setTo(double to) {
         this.to = to;
         return this;
     }
@@ -50,24 +49,20 @@ public class TimeSpan implements Comparable<TimeSpan>
     /**
      * @return a double array contains [ from, to ]
      */
-    public double[] toDoubleArray()
-    {
-        return new double[] { from, to };
+    public double[] toDoubleArray() {
+        return new double[]{from, to};
     }
 
     /**
      * @param second
      * @return -1 if this time span is before the second time span. 1 if the time span is after the second one.
-     *         returns 0 if they collapse in any way.
+     * returns 0 if they collapse in any way.
      */
     @Override
     public int compareTo(TimeSpan second) {
-        if ((this.getFrom() < second.getFrom()) && (this.getTo() < second.getFrom()))
-        {
+        if ((this.getFrom() < second.getFrom()) && (this.getTo() < second.getFrom())) {
             return -1;
-        }
-        else if ((second.getFrom() < this.getFrom()) && (second.getTo() < this.getFrom()))
-        {
+        } else if ((second.getFrom() < this.getFrom()) && (second.getTo() < this.getFrom())) {
             return 1;
         }
 
@@ -76,9 +71,8 @@ public class TimeSpan implements Comparable<TimeSpan>
 
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof TimeSpan)
-        {
-            TimeSpan other = (TimeSpan)obj;
+        if (obj instanceof TimeSpan) {
+            TimeSpan other = (TimeSpan) obj;
             return other.getFrom() == this.getFrom() && other.getTo() == this.getTo();
         }
 

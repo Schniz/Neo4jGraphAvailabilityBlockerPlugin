@@ -28,8 +28,7 @@ import java.util.TreeSet;
  *
  * Represents edge availability
  */
-public class EdgeAvailability
-{
+public class EdgeAvailability {
     private SortedSet<TimeSpan> blockedTimeSpans;
 
     public SortedSet<TimeSpan> getBlockedTimeSpans() {
@@ -42,13 +41,12 @@ public class EdgeAvailability
 
     /**
      * Provides an interface for converting [ start1, finish1, start2, finish2 ] to awesome EdgeAvailability object.
+     *
      * @param array in the form of [ start1, finish1, start2, finish2 ]
      * @return an EdgeAvailability object representing the array.
      */
-    public static EdgeAvailability fromDoubleArray(double[] array)
-    {
-        if (array.length % 2 == 1)
-        {
+    public static EdgeAvailability fromDoubleArray(double[] array) {
+        if (array.length % 2 == 1) {
             throw new RuntimeException("The array length should be even.");
         }
 
@@ -66,17 +64,16 @@ public class EdgeAvailability
 
     /**
      * Takes the EdgeAvailability awesome object and turns it into a double array.
+     *
      * @return a double array representing the EdgeAvailability object.
      */
-    public double[] toDoubleArray()
-    {
+    public double[] toDoubleArray() {
         int edgeAvailabilitySize = blockedTimeSpans.size();
         int arrayLength = edgeAvailabilitySize * 2;
         double[] doubleArray = new double[arrayLength];
         Iterator<TimeSpan> timeSpanIterator = blockedTimeSpans.iterator();
 
-        for (int edgeAvailabilityIndex = 0; edgeAvailabilityIndex < edgeAvailabilitySize; edgeAvailabilityIndex++)
-        {
+        for (int edgeAvailabilityIndex = 0; edgeAvailabilityIndex < edgeAvailabilitySize; edgeAvailabilityIndex++) {
             TimeSpan timeSpan = timeSpanIterator.next();
             doubleArray[edgeAvailabilityIndex * 2] = timeSpan.getFrom();
             doubleArray[edgeAvailabilityIndex * 2 + 1] = timeSpan.getTo();
@@ -87,15 +84,14 @@ public class EdgeAvailability
 
     /**
      * Provides an interface for converting [ timeStamp1, timeStamp2 ] to awesome EdgeAvailability object.
+     *
      * @param array in the form of [ timeStamp1, timeStamp2 ]
      * @return an EdgeAvailability object representing the array.
      */
-    public static EdgeAvailability fromTimeSpanArray(TimeSpan[] array)
-    {
+    public static EdgeAvailability fromTimeSpanArray(TimeSpan[] array) {
         EdgeAvailability edgeAvailability = new EdgeAvailability();
 
-        for (TimeSpan timeSpan : array)
-        {
+        for (TimeSpan timeSpan : array) {
             edgeAvailability.blockedTimeSpans.add(timeSpan);
         }
 
@@ -104,10 +100,10 @@ public class EdgeAvailability
 
     /**
      * Takes the EdgeAvailability awesome object and turns it into a TimeStamp array.
+     *
      * @return a TimeStamp array representing the EdgeAvailability object.
      */
-    public TimeSpan[] toTimeSpanArray()
-    {
+    public TimeSpan[] toTimeSpanArray() {
         TimeSpan[] array = new TimeSpan[blockedTimeSpans.size()];
         blockedTimeSpans.toArray(array);
 
@@ -116,21 +112,21 @@ public class EdgeAvailability
 
     /**
      * Check whether the edge is available.
+     *
      * @param timeSpan
      * @return boolean. true if the edge is avaiable; otherwise, false.
      */
-    public boolean isFree(TimeSpan timeSpan)
-    {
+    public boolean isFree(TimeSpan timeSpan) {
         return !blockedTimeSpans.contains(timeSpan);
     }
 
     /**
      * Will add a block in this timestamp
+     *
      * @param timeSpan
      * @return this (EdgeAvailability) for method chaining.
      */
-    public EdgeAvailability addBlock(TimeSpan timeSpan)
-    {
+    public EdgeAvailability addBlock(TimeSpan timeSpan) {
         blockedTimeSpans.add(timeSpan);
 
         return this;

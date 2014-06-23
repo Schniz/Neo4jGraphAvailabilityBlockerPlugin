@@ -20,8 +20,6 @@
 
 package org.neo4j.graphalgo.impl.shobydoby;
 
-import org.neo4j.cypher.ExecutionResult;
-import org.neo4j.graphalgo.WeightedPath;
 import org.neo4j.graphdb.Path;
 import org.neo4j.graphdb.PathExpander;
 import org.neo4j.graphdb.Relationship;
@@ -29,7 +27,6 @@ import org.neo4j.graphdb.RelationshipType;
 import org.neo4j.graphdb.traversal.BranchState;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -52,10 +49,9 @@ public class StatefulEdgeAvailabilityPathExpander implements PathExpander<Double
 
         double currCost = state.getState();
 
-        if ( path.length() != 0 )
-        {
-            currCost += ((Number) path.lastRelationship().getProperty( "distance" )).doubleValue();
-            state.setState( currCost );
+        if (path.length() != 0) {
+            currCost += ((Number) path.lastRelationship().getProperty("distance")).doubleValue();
+            state.setState(currCost);
         }
 
         List<Relationship> relationships = new ArrayList<>();
@@ -65,20 +61,7 @@ public class StatefulEdgeAvailabilityPathExpander implements PathExpander<Double
             double[] availabilities = getAvailabilities(relationship);
             EdgeAvailability e = EdgeAvailability.fromDoubleArray(availabilities);
 
-//            int startIndex = 0;
-//            int endIndex = availabilities.length - 1;
-//            int greatestSmallerIndex = 0;
-//
-//            if (availabilities.length > 0) {
-//                greatestSmallerIndex = binarySearch(startIndex, endIndex, availabilities, currCost);
-//            }
-//
-//            if ((availabilities.length == 0) ||
-//                (isLastElementInCouple(greatestSmallerIndex) &&
-//                 (isLastElementInArray(availabilities, greatestSmallerIndex) ||
-//                  isNextElementNotInterferingThisOne(currCost, availabilities[greatestSmallerIndex + 1]))))
-            if (e.isFree(new TimeSpan().setFrom(currCost).setTo(currCost + length)))
-            {
+            if (e.isFree(new TimeSpan().setFrom(currCost).setTo(currCost + length))) {
                 relationships.add(relationship);
             }
         }
@@ -87,43 +70,9 @@ public class StatefulEdgeAvailabilityPathExpander implements PathExpander<Double
     }
 
     private double[] getAvailabilities(Relationship objRelation) {
-
         Object availabilities = objRelation.getProperty("availability", new double[0]);
-//
-//        if (objRelation.hasProperty("availability")){
-//            availabilities = objRelation.getProperty("availability");
-//        }
-
-//        double[] result;
-
-//        if (availabilities instanceof int[])
-//        {
-//            int[] arrToManipulate = (int[]) availabilities;
-//            double[] arr = new double[arrToManipulate.length];
-//            for (int i = 0; i < arrToManipulate.length; i++)
-//            {
-//                arr[i] = (double) arrToManipulate[i];
-//            }
-//            result = arr;
-//        }
-//        else
-//        {
-//            result = (double[]) availabilities;
-//        }
 
         return (double[]) availabilities;
-    }
-
-    private boolean isNextElementNotInterferingThisOne(double currCost, double i) {
-        return (currCost + length < i);
-    }
-
-    private boolean isLastElementInCouple(int greatestSmallerNumberIndex) {
-        return (Math.abs(greatestSmallerNumberIndex % 2) == 1);
-    }
-
-    private boolean isLastElementInArray(double[] arrAvailability, int greatestSmallerNumberIndex) {
-        return (greatestSmallerNumberIndex + 1 == arrAvailability.length);
     }
 
     @Override
@@ -131,8 +80,7 @@ public class StatefulEdgeAvailabilityPathExpander implements PathExpander<Double
         return this;
     }
 
-    public int binarySearch(int startIndex, int endIndex, double[] arrAv, double cost)
-    {
+    public int binarySearch(int startIndex, int endIndex, double[] arrAv, double cost) {
         int middle = (startIndex + endIndex) / 2;
 
         if (arrAv[middle] == cost) {
