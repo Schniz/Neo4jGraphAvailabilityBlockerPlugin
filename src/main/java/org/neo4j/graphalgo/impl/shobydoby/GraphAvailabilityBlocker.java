@@ -35,10 +35,10 @@ import org.neo4j.graphdb.traversal.InitialBranchState;
  * Blocks a road on the graph if its available.
  */
 public class GraphAvailabilityBlocker {
-    int trainLength;
+    double trainLength;
     private PathExpander<Double> pathExpander;
 
-    public GraphAvailabilityBlocker(int trainLength) {
+    public GraphAvailabilityBlocker(double trainLength) {
         this.trainLength = trainLength;
         pathExpander = new StatefulEdgeAvailabilityPathExpander(trainLength);
     }

@@ -15,7 +15,7 @@ public class GraphAvailabilityPlugin extends ServerPlugin {
     public Path getAvailablePath(
             @Source Node source,
             @Parameter(name = "target") @Description("Target") Node target,
-            @Parameter(name = "trainLength") @Description("The Length of the train") Integer trainLength,
+            @Parameter(name = "trainLength") @Description("The Length of the train") Double trainLength,
             @Parameter(name = "hour") @Description("The time to start the path") Double hour) {
         Path path = null;
 
@@ -33,7 +33,7 @@ public class GraphAvailabilityPlugin extends ServerPlugin {
     public Path blockPath(
             @Source Node source,
             @Parameter(name = "target") @Description("Target") Node target,
-            @Parameter(name = "trainLength") @Description("The Length of the train") Integer trainLength,
+            @Parameter(name = "trainLength") @Description("The Length of the train") Double trainLength,
             @Parameter(name = "hour") @Description("The time to start the path") Double hour) {
         Path path = null;
 

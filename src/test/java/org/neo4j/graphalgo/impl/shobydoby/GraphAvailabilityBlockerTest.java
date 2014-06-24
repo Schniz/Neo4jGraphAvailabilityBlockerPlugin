@@ -20,12 +20,12 @@
 
 package org.neo4j.graphalgo.impl.shobydoby;
 
-import common.Neo4jAlgoTestCase;
 import org.junit.Assert;
 import org.junit.Test;
+import org.neo4j.graphalgo.impl.shobydoby.util.AlgoTestCase;
 import org.neo4j.graphdb.Node;
 
-public class GraphAvailabilityBlockerTest extends Neo4jAlgoTestCase {
+public class GraphAvailabilityBlockerTest extends AlgoTestCase {
     @Test
     public void testTryBlock() throws Exception {
         Node nodeA = graph.makeNode( "A" );
@@ -33,12 +33,12 @@ public class GraphAvailabilityBlockerTest extends Neo4jAlgoTestCase {
         Node nodeC = graph.makeNode( "C" );
         Node nodeD = graph.makeNode( "D" );
 
-        graph.makeEdge("A", "B", "length", 1d, "availability", new double[] { 0, 1 });
-        graph.makeEdge("D", "B", "length", 1d, "availability", new double[] { 0, 1, 5, 7 });
-        graph.makeEdge("A", "C", "length", 1d, "availability", new double[] { 0, 1 });
-        graph.makeEdge("C", "D", "length", 2d, "availability", new double[] { 0, 1 });
+        createRelation(nodeA, nodeB, "distance", 1d, "availability", new double[] { 0, 1 });
+        createRelation(nodeD, nodeB, "distance", 1d, "availability", new double[] { 0, 1, 5, 7 });
+        createRelation(nodeA, nodeC, "distance", 1d, "availability", new double[] { 0, 1 });
+        createRelation(nodeC, nodeD, "distance", 2d, "availability", new double[] { 0, 1 });
 
-        GraphAvailabilityBlocker graphBlocker = new GraphAvailabilityBlocker(2);
+        GraphAvailabilityBlocker graphBlocker = new GraphAvailabilityBlocker(2d);
 
         Assert.assertNull("There should be no path", graphBlocker.tryBlock(0d, nodeA, nodeD));
         assertPath(graphBlocker.tryBlock(2d, nodeA, nodeD), nodeA, nodeC, nodeD);

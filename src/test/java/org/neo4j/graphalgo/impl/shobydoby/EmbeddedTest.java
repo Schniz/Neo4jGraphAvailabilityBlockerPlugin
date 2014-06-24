@@ -1,17 +1,12 @@
 package org.neo4j.graphalgo.impl.shobydoby;
 
-import junit.framework.TestCase;
 import org.apache.commons.lang.time.StopWatch;
-import org.junit.Before;
-import org.neo4j.graphalgo.CommonEvaluators;
-import org.neo4j.graphalgo.GraphAlgoFactory;
+import org.junit.Assert;
+import org.junit.BeforeClass;
+import org.junit.Test;
 import org.neo4j.graphalgo.WeightedPath;
-import org.neo4j.graphalgo.impl.path.Dijkstra;
 import org.neo4j.graphdb.*;
-import org.neo4j.graphdb.factory.GraphDatabaseBuilder;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
-import org.neo4j.graphdb.factory.GraphDatabaseSettings;
-import org.neo4j.graphdb.traversal.InitialBranchState;
 import org.neo4j.tooling.GlobalGraphOperations;
 
 import java.util.ArrayList;
@@ -20,15 +15,11 @@ import java.util.List;
 /**
  * Created by Daniel on 6/22/14.
  */
-public class EmbeddedTest extends TestCase {
-    GraphDatabaseService db;
-    private int startNodeId = 274766;
-//    private int endNodeId = 9350;
-    private int endNodeId = 2002;
+public class EmbeddedTest {
+    static GraphDatabaseService db;
 
-    @Before
-    public void setUp() throws Exception {
-        super.setUp();
+    @BeforeClass
+    public static void setUp() throws Exception {
         db = new GraphDatabaseFactory()
                 .newEmbeddedDatabaseBuilder("/tmp/neo4j-db")
                 .newGraphDatabase();
@@ -57,10 +48,8 @@ public class EmbeddedTest extends TestCase {
         }
     }
 
-    void printPath(Node startNode, Node endNode, WeightedPath path)
-    {
-        if (path == null)
-        {
+    void printPath(Node startNode, Node endNode, WeightedPath path) {
+        if (path == null) {
             System.out.println("no path found");
             return;
         }
@@ -74,37 +63,37 @@ public class EmbeddedTest extends TestCase {
 
         Node nodeToInsert = null;
 
-        for (PropertyContainer node : path){
+        for (PropertyContainer node : path) {
 
-            if (node instanceof Node){
+            if (node instanceof Node) {
 
-                if (node.hasProperty("node_osm_id")){
+                if (node.hasProperty("node_osm_id")) {
                     nodeToInsert = (Node) node;
                 } else {
-                    nodeToInsert = ((Node)node).getSingleRelationship(StatefulEdgeAvailabilityPathExpander.Relations.NODE, Direction.BOTH).getEndNode();
+                    nodeToInsert = ((Node) node).getSingleRelationship(StatefulEdgeAvailabilityPathExpander.Relations.NODE, Direction.BOTH).getEndNode();
                 }
 
-                if (!nodesList.contains(nodeToInsert)){
+                if (!nodesList.contains(nodeToInsert)) {
                     nodesList.add(nodeToInsert);
                 }
             }
         }
 
         System.out.println("id");
-        for (Node node : nodesList){
+        for (Node node : nodesList) {
             System.out.println(node.getId());
         }
 
         System.out.println("--");
         System.out.println("lat");
-        for (Node node : nodesList){
+        for (Node node : nodesList) {
             System.out.println(node.getProperty("lat"));
         }
 
         System.out.println("--");
         System.out.println("lon");
 
-        for (Node node : nodesList){
+        for (Node node : nodesList) {
             System.out.println(node.getProperty("lon"));
         }
 
@@ -112,12 +101,11 @@ public class EmbeddedTest extends TestCase {
 
     }
 
-    public void testPerformance() throws Exception
-    {
+    //    @Test
+    public void testPerformance() throws Exception {
         StopWatch stopWatch = new StopWatch();
 
-        try (Transaction tx = db.beginTx())
-        {
+        try (Transaction tx = db.beginTx()) {
             Node nodeA = db.getNodeById(3681);
             Node nodeB = db.getNodeById(13130);
             stopWatch.start();
@@ -134,6 +122,41 @@ public class EmbeddedTest extends TestCase {
         }
 
         long timeTaken = stopWatch.getTime();
-        assertTrue("this test should be less than 1000ms!!!! it took " + timeTaken, timeTaken < 1000);
+        Assert.assertTrue("this test should be less than 1000ms!!!! it took " + timeTaken, timeTaken < 1000);
+    }
+
+    @Test
+    public void testConcurrentTest() throws Exception {
+        StopWatch stopWatch = new StopWatch();
+
+        List<Thread> threads = new ArrayList<>();
+
+        stopWatch.start();
+
+        for (double i = 0.0; i < 10.0; i++) {
+            final double x = i;
+            Thread thread = new Thread() {
+                @Override
+                public void run() {
+                    try (Transaction tx = db.beginTx()) {
+                        Node nodeA = db.getNodeById(3681);
+                        Node nodeB = db.getNodeById(13130);
+                        WeightedPath availablePath = new GraphAvailabilityBlocker(2).tryBlock(x, nodeA, nodeB);
+                        tx.failure();
+                    }
+                }
+            };
+            threads.add(thread);
+            thread.start();
+        }
+
+        for (Thread t : threads) {
+            t.join();
+        }
+
+        stopWatch.stop();
+
+        long timeTaken = stopWatch.getTime();
+        Assert.assertTrue("this test should be less than 1500ms!!!! it took " + timeTaken, timeTaken < 1500);
     }
 }

@@ -20,17 +20,17 @@
 
 package org.neo4j.graphalgo.impl.shobydoby;
 
-import common.Neo4jAlgoTestCase;
 import org.junit.Assert;
 import org.junit.Test;
 import org.neo4j.graphalgo.CommonEvaluators;
 import org.neo4j.graphalgo.WeightedPath;
 import org.neo4j.graphalgo.impl.path.Dijkstra;
+import org.neo4j.graphalgo.impl.shobydoby.util.AlgoTestCase;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.PathExpander;
 import org.neo4j.graphdb.traversal.InitialBranchState;
 
-public class StatefulEdgeAvailabilityPathExpanderTest extends Neo4jAlgoTestCase {
+public class StatefulEdgeAvailabilityPathExpanderTest extends AlgoTestCase {
     @Test
     public void AndersonTest1() throws Exception
     {
@@ -40,14 +40,14 @@ public class StatefulEdgeAvailabilityPathExpanderTest extends Neo4jAlgoTestCase 
         Node nodeD = graph.makeNode( "D" );
         Node nodeE = graph.makeNode( "E" );
 
-        graph.makeEdge("A", "B", "distance", 1, "availability", new double[0]);
-        graph.makeEdge("B", "C", "distance", 3, "availability", new double[0]);
-        graph.makeEdge("D", "C", "distance", 1, "availability", new double[] { 1, 2 });
-        graph.makeEdge("E", "D", "distance", 1, "availability", new double[0]);
-        graph.makeEdge("A", "E", "distance", 1, "availability", new double[0]);
-        graph.makeEdge("E", "C", "distance", 1, "availability", new double[]{2, 4});
+        createRelation(nodeA, nodeB, "distance", 1, "availability", new double[0]);
+        createRelation(nodeB, nodeC, "distance", 100, "availability", new double[0]);
+        createRelation(nodeD, nodeC, "distance", 1, "availability", new double[] { 1, 1.9 });
+        createRelation(nodeE, nodeD, "distance", 1, "availability", new double[0]);
+        createRelation(nodeA, nodeE, "distance", 1, "availability", new double[0]);
+        createRelation(nodeE, nodeC, "distance", 1, "availability", new double[]{2, 4});
 
-        PathExpander<Double> myPathExpander = new StatefulEdgeAvailabilityPathExpander(2);
+        PathExpander<Double> myPathExpander = new StatefulEdgeAvailabilityPathExpander(2d);
 
         Dijkstra algo = new Dijkstra( myPathExpander,
                 new InitialBranchState.State<>( 0d, 0d ),
@@ -65,14 +65,14 @@ public class StatefulEdgeAvailabilityPathExpanderTest extends Neo4jAlgoTestCase 
         Node nodeD = graph.makeNode( "D" );
         Node nodeE = graph.makeNode( "E" );
 
-        graph.makeEdge("A", "B", "distance", 1, "availability", new double[0]);
-        graph.makeEdge("B", "C", "distance", 3, "availability", new double[0]);
-        graph.makeEdge("D", "C", "distance", 1, "availability", new double[] { 1, 3 });
-        graph.makeEdge("E", "D", "distance", 1, "availability", new double[0]);
-        graph.makeEdge("A", "E", "distance", 1, "availability", new double[0]);
-        graph.makeEdge("E", "C", "distance", 1, "availability", new double[] { 2, 4 });
+        createRelation(nodeA, nodeB, "distance", 1, "availability", new double[0]);
+        createRelation(nodeB, nodeC, "distance", 3, "availability", new double[0]);
+        createRelation(nodeD, nodeC, "distance", 1, "availability", new double[] { 1, 3 });
+        createRelation(nodeE, nodeD, "distance", 1, "availability", new double[0]);
+        createRelation(nodeA, nodeE, "distance", 1, "availability", new double[0]);
+        createRelation(nodeE, nodeC, "distance", 1, "availability", new double[] { 2, 4 });
 
-        PathExpander<Double> myPathExpander = new StatefulEdgeAvailabilityPathExpander(2);
+        PathExpander<Double> myPathExpander = new StatefulEdgeAvailabilityPathExpander(2d);
 
         Dijkstra algo = new Dijkstra( myPathExpander,
                 new InitialBranchState.State<Double>( 0.0, 0.0 ),
@@ -89,12 +89,12 @@ public class StatefulEdgeAvailabilityPathExpanderTest extends Neo4jAlgoTestCase 
         Node nodeC = graph.makeNode( "C" );
         Node nodeD = graph.makeNode( "D" );
 
-        graph.makeEdge("A", "B", "distance", 1, "availability", new double[0]);
-        graph.makeEdge("D", "B", "distance", 1, "availability", new double[] { 0, 2 });
-        graph.makeEdge("A", "C", "distance", 1, "availability", new double[0]);
-        graph.makeEdge("C", "D", "distance", 2, "availability", new double[0]);
+        createRelation(nodeA, nodeB, "distance", 1, "availability", new double[0]);
+        createRelation(nodeD, nodeB, "distance", 1, "availability", new double[] { 0, 2 });
+        createRelation(nodeA, nodeC, "distance", 1, "availability", new double[0]);
+        createRelation(nodeC, nodeD, "distance", 2, "availability", new double[0]);
 
-        PathExpander<Double> myPathExpander = new StatefulEdgeAvailabilityPathExpander(2);
+        PathExpander<Double> myPathExpander = new StatefulEdgeAvailabilityPathExpander(2d);
 
         Dijkstra algo = new Dijkstra( myPathExpander,
                 new InitialBranchState.State<Double>( 0.0, 0.0 ),
@@ -112,12 +112,12 @@ public class StatefulEdgeAvailabilityPathExpanderTest extends Neo4jAlgoTestCase 
         Node nodeD = graph.makeNode( "D" );
 
 
-        graph.makeEdge("A", "B", "distance", 1, "availability", new double[0]);
-        graph.makeEdge("D", "B", "distance", 1, "availability", new double[] { 4, 5 });
-        graph.makeEdge("A", "C", "distance", 1, "availability", new double[0]);
-        graph.makeEdge("C", "D", "distance", 2, "availability", new double[0]);
+        createRelation(nodeA, nodeB, "distance", 1, "availability", new double[0]);
+        createRelation(nodeD, nodeB, "distance", 1, "availability", new double[] { 4, 5 });
+        createRelation(nodeA, nodeC, "distance", 1, "availability", new double[0]);
+        createRelation(nodeC, nodeD, "distance", 2, "availability", new double[0]);
 
-        PathExpander<Double> myPathExpander = new StatefulEdgeAvailabilityPathExpander(2);
+        PathExpander<Double> myPathExpander = new StatefulEdgeAvailabilityPathExpander(2.0);
 
         Dijkstra algo = new Dijkstra( myPathExpander,
                 new InitialBranchState.State<Double>( 0.0, 0.0 ),
@@ -134,12 +134,12 @@ public class StatefulEdgeAvailabilityPathExpanderTest extends Neo4jAlgoTestCase 
         Node nodeC = graph.makeNode( "C" );
         Node nodeD = graph.makeNode( "D" );
 
-        graph.makeEdge("A", "B", "distance", 1, "availability", new double[0]);
-        graph.makeEdge("D", "B", "distance", 1, "availability", new double[] { 3, 5 });
-        graph.makeEdge("A", "C", "distance", 1, "availability", new double[0]);
-        graph.makeEdge("C", "D", "distance", 2, "availability", new double[0]);
+        createRelation(nodeA, nodeB, "distance", 1, "availability", new double[0]);
+        createRelation(nodeD, nodeB, "distance", 1, "availability", new double[] { 3, 5 });
+        createRelation(nodeA, nodeC, "distance", 1, "availability", new double[0]);
+        createRelation(nodeC, nodeD, "distance", 2, "availability", new double[0]);
 
-        PathExpander<Double> myPathExpander = new StatefulEdgeAvailabilityPathExpander(2);
+        PathExpander<Double> myPathExpander = new StatefulEdgeAvailabilityPathExpander(2d);
 
         Dijkstra algo = new Dijkstra( myPathExpander,
                 new InitialBranchState.State<Double>( 0.0, 0.0 ),
@@ -154,14 +154,14 @@ public class StatefulEdgeAvailabilityPathExpanderTest extends Neo4jAlgoTestCase 
         Node nodeB = graph.makeNode( "B" );
         Node nodeC = graph.makeNode( "C" );
         Node nodeD = graph.makeNode( "D" );
-
-        graph.makeEdge("A", "B", "distance", 1, "availability", new double[] { 0, 1 });
-        graph.makeEdge("D", "B", "distance", 1, "availability", new double[] { 0, 1, 5, 7 });
-        graph.makeEdge("A", "C", "distance", 1, "availability", new double[] { 0, 1 });
-        graph.makeEdge("C", "D", "distance", 2, "availability", new double[] { 0, 1 });
+        
+        createRelation(nodeA, nodeB, "distance", 1, "availability", new double[] { 0, 1 });
+        createRelation(nodeD, nodeB, "distance", 1, "availability", new double[] { 0, 1, 5, 7 });
+        createRelation(nodeA, nodeC, "distance", 1, "availability", new double[] { 0, 1 });
+        createRelation(nodeC, nodeD, "distance", 2, "availability", new double[] { 0, 1 });
 
         int traindistance = 2;
-        PathExpander<Double> myPathExpander = new StatefulEdgeAvailabilityPathExpander(traindistance);
+        PathExpander<Double> myPathExpander = new StatefulEdgeAvailabilityPathExpander((double)traindistance);
 
         Dijkstra algo = new Dijkstra( myPathExpander,
                 new InitialBranchState.State<Double>( 0.0, 0.0 ),

@@ -38,9 +38,9 @@ public class StatefulEdgeAvailabilityPathExpander implements PathExpander<Double
         NODE, NEXT
     }
 
-    int length;
+    double length;
 
-    public StatefulEdgeAvailabilityPathExpander(int length) {
+    public StatefulEdgeAvailabilityPathExpander(double length) {
         this.length = length;
     }
 
@@ -61,7 +61,8 @@ public class StatefulEdgeAvailabilityPathExpander implements PathExpander<Double
             double[] availabilities = getAvailabilities(relationship);
             EdgeAvailability e = EdgeAvailability.fromDoubleArray(availabilities);
 
-            if (e.isFree(new TimeSpan().setFrom(currCost).setTo(currCost + length))) {
+            TimeSpan blockingTime = new TimeSpan().setFrom(currCost).setTo(currCost + length);
+            if (e.isFree(blockingTime)) {
                 relationships.add(relationship);
             }
         }
