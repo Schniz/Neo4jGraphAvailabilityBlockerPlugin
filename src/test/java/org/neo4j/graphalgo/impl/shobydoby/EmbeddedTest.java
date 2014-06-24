@@ -4,10 +4,10 @@ import org.apache.commons.lang.time.StopWatch;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.neo4j.graphalgo.impl.shobydoby.util.DbWarmer;
 import org.neo4j.graphalgo.WeightedPath;
 import org.neo4j.graphdb.*;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
-import org.neo4j.tooling.GlobalGraphOperations;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,26 +25,8 @@ public class EmbeddedTest {
                 .newGraphDatabase();
 
         try (Transaction tx = db.beginTx()) {
-            int i = 0;
-            Iterable<Node> allNodes = GlobalGraphOperations.at(db).getAllNodes();
-            for (Node node : allNodes) {
-                if (node.hasProperty("node_osm_id")) {
-                    i++;
-                }
-
-                for (Relationship r : node.getRelationships()) {
-                    Iterable<String> propertyKeys = r.getPropertyKeys();
-                    for (String propertyKey : propertyKeys) {
-                        r.getProperty(propertyKey);
-                    }
-                }
-
-                for (String propertyKey : node.getPropertyKeys()) {
-                    node.getProperty(propertyKey);
-                }
-            }
-
-            System.out.println("graph size: " + i);
+            int graphSize = DbWarmer.warmUpDatabase(db);
+            System.out.println("graph size: " + graphSize);
         }
     }
 
@@ -101,7 +83,7 @@ public class EmbeddedTest {
 
     }
 
-    //    @Test
+    @Test
     public void testPerformance() throws Exception {
         StopWatch stopWatch = new StopWatch();
 
