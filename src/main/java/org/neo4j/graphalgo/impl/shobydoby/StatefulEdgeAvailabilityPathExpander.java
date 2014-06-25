@@ -35,7 +35,7 @@ import java.util.List;
 public class StatefulEdgeAvailabilityPathExpander implements PathExpander<Double> {
 
     public static enum Relations implements RelationshipType {
-        NODE, NEXT
+        NODE, NEXT, ROAD
     }
 
     double length;
@@ -55,7 +55,7 @@ public class StatefulEdgeAvailabilityPathExpander implements PathExpander<Double
         }
 
         List<Relationship> relationships = new ArrayList<>();
-        Iterable<Relationship> relationshipIterable = path.endNode().getRelationships(Relations.NODE, Relations.NEXT);
+        Iterable<Relationship> relationshipIterable = path.endNode().getRelationships(Relations.ROAD);
 
         for (Relationship relationship : relationshipIterable) {
             double[] availabilities = getAvailabilities(relationship);
